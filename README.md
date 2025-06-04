@@ -1,99 +1,36 @@
-A simple React component to embed Live2D models (via `live2d-widget`) in Next.js projects.
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-[![npm](https://img.shields.io/npm/v/next-live2d?style=flat-square)](https://www.npmjs.com/package/next-live2d)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
-[![GitHub Repo stars](https://img.shields.io/github/stars/dangtranhuu/next-live2d?style=social)](https://github.com/dangtranhuu/next-live2d)
+## Getting Started
 
-
-![Live2D Widget Preview](./public/main.gif)
-
-## ✨ Features
-
-- 🧠 Auto-load [Live2D Widget](https://github.com/xiazeyu/live2d-widget.js)
-- ⚙️ Zero-config usage with App Router
-- 🎒 Comes with built-in model (`histoire`)
-- ✅ SSR-safe using `dynamic(() => import(...), { ssr: false })`
-
----
-
-## 🚀 Installation
+First, run the development server:
 
 ```bash
-npm install next-live2d
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-🧩 Usage in Next.js (app/layout.tsx)
-```tsx
-'use client'
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-import { Live2DWidget } from 'next-live2d' {/* Import tại đây */}
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-import { ReactNode } from 'react'
-import './globals.css'
+## Learn More
 
-export default function RootLayout({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        <main>{children}</main>
-        <Live2DWidget modelName="mai" /> {/* Bạn có thể đổi model khác tại đây */}
-      </body>
-    </html>
-  )
-}
-```
+To learn more about Next.js, take a look at the following resources:
 
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## 📁 Model Path
-By default, the widget looks for:
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-### 📦 Available Built-in Models
+## Deploy on Vercel
 
-| Model Name           | Preview (coming soon)         | Usage                                |
-|----------------------|-------------------------------|--------------------------------------|
-| histoire             | ![](./public/models/histoire.png)                      | `<Live2DWidget modelName="histoire" />`             |
-| bilibili-22          | ![](./public/models/bilibili-22.png)                     | `<Live2DWidget modelName="bilibili-22" />`          |
-| bilibili-33          | ![](./public/models/bilibili-33.png)                     | `<Live2DWidget modelName="bilibili-33" />`          |
-| cat-black            | ![](./public/models/cat-black.png)                      | `<Live2DWidget modelName="cat-black" />`            |
-| cat-white            | ![](./public/models/cat-white.png)                    | `<Live2DWidget modelName="cat-white" />`            |
-| chino                | ![](./public/models/chino.png)                     | `<Live2DWidget modelName="chino" />`                |
-| date                 | ![](./public/models/date)                  | `<Live2DWidget modelName="date" />`                 |
-| hallo                | ![](./public/models/hallo.png)                       | `<Live2DWidget modelName="hallo" />`                |
-| haruto               | ![](./public/models/haruto.png)                        | `<Live2DWidget modelName="haruto" />`               |
-| hibiki               | ![](./public/models/hibiki.png)                         | `<Live2DWidget modelName="hibiki" />`               |
-| HK416-1-normal       | ![](./public/models/HK416-1-normal.png)                         | `<Live2DWidget modelName="HK416-1-normal" />`       |
-| HK416-2-destroy      | ![](./public/models/HK416-2-destroy.png)                         | `<Live2DWidget modelName="HK416-2-destroy" />`      |
-| HK416-2-normal       | ![](./public/models/HK416-2-normal.png)                        | `<Live2DWidget modelName="HK416-2-normal" />`       |
-| Kar98k-normal        | ![](./public/models/Kar98k-normal.png)                       | `<Live2DWidget modelName="Kar98k-normal" />`        |
-| kobayaxi             | ![](./public/models/kobayaxi.png)                        | `<Live2DWidget modelName="kobayaxi" />`             |
-| koharu               | ![](./public/models/koharu.png)                      | `<Live2DWidget modelName="koharu" />`               |
-| kp31                 | ![](./public/models/kp31.png)                         | `<Live2DWidget modelName="kp31" />`                 |
-| live_uu              | ![](./public/models/live_uu.png)                       | `<Live2DWidget modelName="live_uu" />`              |
-| mai                  | ![](./public/models/mai.png)                         | `<Live2DWidget modelName="mai" />`                  |
-| murakumo             | ![]()                         | `<Live2DWidget modelName="murakumo" />`             |
-| Pio                  | ![]()                         | `<Live2DWidget modelName="Pio" />`                  |
-| platelet             | ![]()                         | `<Live2DWidget modelName="platelet" />`             |
-| platelet_2           | ![]()                         | `<Live2DWidget modelName="platelet_2" />`           |
-| potion-Maker-Pio     | ![]()                         | `<Live2DWidget modelName="potion-Maker-Pio" />`     |
-| rem                  | ![]()                         | `<Live2DWidget modelName="rem" />`                  |
-| rem_2                | ![]()                         | `<Live2DWidget modelName="rem_2" />`                |
-| Senko_Normals        | ![]()                         | `<Live2DWidget modelName="Senko_Normals" />`        |
-| shizuku              | ![]()                         | `<Live2DWidget modelName="shizuku" />`              |
-| shizuku_48           | ![]()                         | `<Live2DWidget modelName="shizuku_48" />`           |
-| shizuku_pajama       | ![]()                         | `<Live2DWidget modelName="shizuku_pajama" />`       |
-| terisa               | ![]()                         | `<Live2DWidget modelName="terisa" />`               |
-| tia                  | ![]()                         | `<Live2DWidget modelName="tia" />`                  |
-| umaru                | ![]()                         | `<Live2DWidget modelName="umaru" />`                |
-| uni                  | ![]()                         | `<Live2DWidget modelName="uni" />`                  |
-| wed_16               | ![]()                         | `<Live2DWidget modelName="wed_16" />`               |
-| xisitina             | ![]()                         | `<Live2DWidget modelName="xisitina" />`             |
-| z16                  | ![]()                         | `<Live2DWidget modelName="z16" />`                  |
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-
-## 🧑‍💻 Author
-Trần Hữu Đang
-Website: [https://dangth.dev](https://dangth.dev)
-
-📝 License
-[MIT]()
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
