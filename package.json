@@ -1,6 +1,7 @@
 {
   "name": "next-live2d",
-  "version": "1.4.1",
+  "version": "2.0.0",
+  "description": "A simple React component to embed Live2D models in Next.js projects with customizable options",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -13,7 +14,8 @@
     }
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "live2d",
@@ -21,7 +23,11 @@
     "widget",
     "react-component",
     "2d-model",
-    "virtual-character"
+    "virtual-character",
+    "anime",
+    "vtuber",
+    "react",
+    "typescript"
   ],
   "license": "MIT",
   "author": {
@@ -37,12 +43,12 @@
   },
   "homepage": "https://next-live2d.vercel.app",
   "devDependencies": {
-    "react": "^18.2.0",
-    "@types/react": "^18.2.0",
+    "react": "^19.0.0",
+    "@types/react": "^19.0.0",
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
-    "react": ">=18 <20",
-    "react-dom": ">=18 <20"
+    "react": ">=18",
+    "react-dom": ">=18"
   }
 }

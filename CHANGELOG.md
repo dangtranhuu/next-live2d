@@ -4,6 +4,33 @@ All notable changes to this project are documented here.
 
 ---
 
+## [2.0.0] - 2026-03-07
+
+### 🚀 Major Release
+
+### ✨ Added
+- **Custom Base URL**: `baseUrl` prop for self-hosting models
+- **Position Control**: `position` prop (`'left'` | `'right'`)
+- **Size Control**: `width` and `height` props
+- **Opacity Control**: `opacity` and `hoverOpacity` props
+- **Mobile Toggle**: `showOnMobile` prop
+- **Random Model**: `random` prop to pick a random built-in model
+- **Loading State**: `fallback` prop for loading UI
+- **Callbacks**: `onLoad`, `onError`, `onClick` props
+- **TypeScript Exports**: `Live2DWidgetProps`, `ModelName`, `BUILT_IN_MODELS`, `getRandomModel()`
+
+### 🔧 Changed
+- **React 19 Support**: Updated peer dependencies to `react >= 18` (no upper limit)
+- **Improved Defaults**: Better default values for all props
+- **Enhanced Cleanup**: More robust cleanup on unmount
+
+### 📚 Documentation
+- Complete README rewrite with all new features
+- Added TypeScript usage examples
+- Updated props reference table
+
+---
+
 ## [1.4.1] - 2025-06-24
 
 ### 🐛 Fixed

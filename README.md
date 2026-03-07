@@ -14,8 +14,14 @@ A simple React component to embed Live2D models (via `live2d-widget`) in Next.js
 
 - 🧠 Auto-load [Live2D Widget](https://github.com/xiazeyu/live2d-widget.js)
 - ⚙️ Zero-config usage with App Router
-- 🎒 Comes with built-in model (`histoire`)
+- 🎒 Comes with 35+ built-in models
 - ✅ SSR-safe using `dynamic(() => import(...), { ssr: false })`
+- 🎲 Random model selection
+- 🎨 Full customization (position, size, opacity, etc.)
+- 📦 Custom base URL support (self-host models)
+- 🔄 Loading state & error handling
+- 💪 TypeScript support with exported types
+- ⚡ React 18 & 19 compatible
 
 ---
 
@@ -30,7 +36,7 @@ npm install next-live2d
 ```tsx
 'use client'
 
-import { Live2DWidget } from 'next-live2d' {/* Import tại đây */}
+import { Live2DWidget } from 'next-live2d'
 
 import { ReactNode } from 'react'
 import './globals.css'
@@ -40,7 +46,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body>
         <main>{children}</main>
-        <Live2DWidget modelName="mai" /> {/* Bạn có thể đổi model khác tại đây */}
+        <Live2DWidget modelName="mai" />
       </body>
     </html>
   )
@@ -49,13 +55,48 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
 ## 🔧 Advanced Usage
 
-Since `v1.4.0`, you can customize the widget with:
+### Basic Customization
 
-`className`: Tailwind or custom CSS classes
+```tsx
+<Live2DWidget
+  modelName="senko"
+  position="left"
+  width={200}
+  height={350}
+  opacity={0.9}
+  hoverOpacity={0.3}
+/>
+```
 
-`style`: Inline `React.CSSProperties` object
+### Random Model
 
-#### Example:
+```tsx
+<Live2DWidget random />
+```
+
+### Custom Base URL (Self-host models)
+
+```tsx
+<Live2DWidget
+  modelName="my-model"
+  baseUrl="https://my-cdn.com/live2d-models"
+/>
+```
+
+### With Loading State & Callbacks
+
+```tsx
+<Live2DWidget
+  modelName="histoire"
+  fallback={<div>Loading Live2D...</div>}
+  onLoad={() => console.log('Model loaded!')}
+  onError={(err) => console.error('Failed:', err)}
+  onClick={() => alert('You clicked the model!')}
+/>
+```
+
+### Tailwind CSS
+
 ```tsx
 <Live2DWidget
   modelName="senko"
@@ -64,16 +105,43 @@ Since `v1.4.0`, you can customize the widget with:
 />
 ```
 
-#### Props
+## 📋 Props Reference
 
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `modelName` | `string` | `'histoire'` | Name of the model folder (must include `model.json`) |
+| `baseUrl` | `string` | GitHub raw URL | Custom base URL to load models from |
+| `position` | `'left' \| 'right'` | `'right'` | Widget position on screen |
+| `width` | `number` | `180` | Widget width in pixels |
+| `height` | `number` | `300` | Widget height in pixels |
+| `opacity` | `number` | `0.8` | Default opacity (0-1) |
+| `hoverOpacity` | `number` | `0.2` | Opacity when hovering (0-1) |
+| `showOnMobile` | `boolean` | `true` | Show widget on mobile devices |
+| `random` | `boolean` | `false` | Pick a random built-in model |
+| `className` | `string` | - | Custom CSS/Tailwind classes |
+| `style` | `CSSProperties` | - | Inline styles |
+| `fallback` | `ReactNode` | - | Component to show while loading |
+| `onLoad` | `() => void` | - | Callback when model loads |
+| `onError` | `(error) => void` | - | Callback on load error |
+| `onClick` | `() => void` | - | Callback when widget is clicked |
 
-| Prop        | Type                   | Required | Mô tả                                                                 |
-|-------------|------------------------|----------|------------------------------------------------------------------------|
-| `modelName` | `string`               | ✅       | Name of the model folder (must include `model.json`)                    |
-| `className` | `string`               | ❌       | Custom CSS or Tailwind classes applied to the widget container (ví dụ: `fixed bottom-0`)    |
-| `style`     | `React.CSSProperties`  | ❌       | Inline styles (e.g., width, height, position)             |
+## 🔤 TypeScript Support
 
----
+```tsx
+import { 
+  Live2DWidget,
+  Live2DWidgetProps,
+  ModelName,
+  BUILT_IN_MODELS,
+  getRandomModel 
+} from 'next-live2d';
+
+// Get a random model name
+const model: ModelName = getRandomModel();
+
+// Access all built-in model names
+console.log(BUILT_IN_MODELS); // ['histoire', 'bilibili-22', ...]
+```
 
 ## 🧠 Tips
 
