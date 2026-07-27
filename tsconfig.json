@@ -3,9 +3,10 @@
     "target": "ESNext",
     "module": "ESNext",
     "jsx": "react-jsx",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "declaration": true,
     "esModuleInterop": true,
+    "rootDir": "src",
     "outDir": "dist"
   },
   "include": [

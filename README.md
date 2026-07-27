@@ -2,13 +2,26 @@ A simple React component to embed Live2D models (via `live2d-widget`) in Next.js
 
 [![npm](https://img.shields.io/npm/v/next-live2d?style=flat-square)](https://www.npmjs.com/package/next-live2d)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
-[![GitHub Repo stars](https://img.shields.io/github/stars/dangtranhuu/next-live2d?style=social)](https://github.com/dangtranhuu/next-live2d)
+[![GitHub Repo stars](https://img.shields.io/github/stars/2hjaito/next-live2d?style=social)](https://github.com/2hjaito/next-live2d)
 [![npm](https://img.shields.io/npm/dm/next-live2d.svg)](https://www.npmjs.com/package/next-live2d)
 
 
 
 
 ![Live2D Widget Preview](./public/main.gif)
+
+## 📢 Latest Update
+
+### v2.0.2 - GitHub Username Migration
+
+- Updated default `baseUrl` host from the old GitHub username to `2hjaito`.
+- Updated repository links and badges to the new GitHub profile.
+- Kept full compatibility for existing model paths ending with `/model.json`.
+
+Full history:
+
+- English: [CHANGELOG.md](./CHANGELOG.md)
+- Vietnamese: [CHANGELOG-vi.md](./CHANGELOG-vi.md)
 
 ## ✨ Features
 
@@ -54,6 +67,28 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 ```
 
 ## 🔧 Advanced Usage
+
+## 🛡️ Next.js Stability Guide
+
+To minimize runtime issues in production projects:
+
+1. Render `Live2DWidget` only in Client Components.
+2. Avoid rendering the widget from Server Components directly.
+3. Keep one widget instance per page/layout to avoid competing initializations.
+4. Prefer stable `modelName` values across frequent rerenders.
+5. For custom model hosting, ensure `model.json` and textures are accessible with correct CORS headers.
+
+Recommended pattern for App Router:
+
+```tsx
+'use client'
+
+import { Live2DWidget } from 'next-live2d'
+
+export default function Live2DClientWidget() {
+  return <Live2DWidget modelName="histoire" />
+}
+```
 
 ### Basic Customization
 
@@ -124,6 +159,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 | `onLoad` | `() => void` | - | Callback when model loads |
 | `onError` | `(error) => void` | - | Callback on load error |
 | `onClick` | `() => void` | - | Callback when widget is clicked |
+
+## 🧭 Versioning
+
+- This project follows semantic versioning.
+- Patch releases focus on stability and compatibility fixes.
+- Minor releases add non-breaking features.
+- Major releases may include behavior changes or migration notes.
 
 ## 🔤 TypeScript Support
 

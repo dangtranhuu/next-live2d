@@ -4,6 +4,58 @@ All notable changes to this project are documented here.
 
 ---
 
+## [2.0.4] - 2026-07-27
+
+### 🐛 Fixed
+- Fixed model switching where only the first model persisted after selection changes.
+- Reset Live2D widget runtime config before each re-initialization so `jsonPath` updates correctly.
+- Updated script loading flow to include both `L2Dwidget.min.js` and `L2Dwidget.0.min.js`, preventing partial runtime initialization.
+
+---
+
+## [2.0.3] - 2026-07-27
+
+### 🐛 Fixed
+- Fixed Live2D initialization context binding (`this`) to prevent runtime failures such as `Cannot read properties of undefined (reading 'emit')`.
+- Added preflight model JSON validation before widget initialization to fail fast with actionable errors.
+
+### ⚙️ Dev Experience
+- Added `dev:test:clean` and test app `dev:clean` scripts to clear stale `.next` artifacts and reduce chunk mismatch issues in local package-link workflows.
+
+---
+
+## [2.0.2] - 2026-07-27
+
+### 🔧 Changed
+- Updated default model host URL to use the new GitHub username `2hjaito`.
+- Updated package metadata links (`repository`, `bugs`) to the new GitHub profile.
+
+### 📚 Documentation
+- Updated README GitHub badge/link to the new repository owner.
+- Updated demo page GitHub link to keep showcase links consistent.
+
+---
+
+## [2.0.1] - 2026-07-27
+
+### 🐛 Fixed
+- Hardened Live2D script loading to avoid duplicate injection during React StrictMode remounts.
+- Improved initialization flow to reduce async race conditions in Next.js App Router projects.
+- Added timeout guard while waiting for `#live2d-widget` to prevent long-running render loops.
+- Improved widget cleanup across unmount/remount transitions to reduce UI freezes.
+- Added safer Promise handling around widget initialization to prevent uncaught runtime failures.
+
+### 🔧 Changed
+- Marked package root entry as client module for safer Next.js import boundaries.
+- Refined model selection lifecycle for random mode and prop-driven updates.
+
+### 📚 Documentation
+- Added Next.js stability integration guidance to README.
+- Added latest release notes section and changelog links in README.
+- Updated demo page content to include release timeline and stability highlights.
+
+---
+
 ## [2.0.0] - 2026-03-07
 
 ### 🚀 Major Release
