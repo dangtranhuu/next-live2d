@@ -176,13 +176,30 @@ export default function Live2DIsolatedWidget({
         screenY: event.screenY,
       })
 
+      win.dispatchEvent(relayEvent)
+      doc.dispatchEvent(relayEvent)
+    }
+
+    const relayClick = (event: MouseEvent) => {
+      const relayEvent = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        clientX: event.clientX,
+        clientY: event.clientY,
+        screenX: event.screenX,
+        screenY: event.screenY,
+      })
+
+      win.dispatchEvent(relayEvent)
       doc.dispatchEvent(relayEvent)
     }
 
     window.addEventListener('mousemove', relayMouseMove)
+    window.addEventListener('click', relayClick)
 
     return () => {
       window.removeEventListener('mousemove', relayMouseMove)
+      window.removeEventListener('click', relayClick)
     }
   }, [bottomOffset, height, modelJsonPath, position, scale, width])
 
@@ -193,14 +210,14 @@ export default function Live2DIsolatedWidget({
       aria-hidden="true"
       style={{
         position: 'fixed',
-        bottom: bottomOffset,
-        [position]: 0,
-        width,
-        height,
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
         border: 0,
         background: 'transparent',
         zIndex: 9999,
-        pointerEvents: 'auto',
+        pointerEvents: 'none',
       }}
     />
   )
