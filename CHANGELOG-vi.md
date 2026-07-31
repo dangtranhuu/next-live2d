@@ -4,6 +4,18 @@ Toàn bộ các thay đổi quan trọng trong dự án sẽ được ghi chú t
 
 ---
 
+## [2.0.5] - 31/07/2026
+
+### 🐛 Sửa lỗi
+- Gia cố cleanup DOM trong vòng đời widget để giảm lỗi race `removeChild` khi chuyển trạng thái.
+
+### 🧪 Ứng dụng test
+- Tách runtime Live2D của demo khỏi luồng cập nhật UI của App Router để tránh ảnh hưởng điều hướng.
+- Khôi phục tương tác đổi model và theo dõi chuột trong chế độ widget cô lập.
+- Tăng kích thước khung hiển thị widget cô lập để giảm tình trạng model cao bị cắt.
+
+---
+
 ## [2.0.4] - 27/07/2026
 
 ### 🐛 Sửa lỗi

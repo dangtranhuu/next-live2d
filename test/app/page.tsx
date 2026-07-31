@@ -1,8 +1,10 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { Live2DWidget } from 'next-live2d'
+import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+
+const MODEL_STORAGE_KEY = 'next-live2d-model'
+const MODEL_CHANGE_EVENT = 'next-live2d:model-change'
 
 const MODELS = [
   "Kar98k-normal",
@@ -98,54 +100,23 @@ const RELEASES = [
   }
 ]
 
-function isKnownExternalRuntimeNoise(input: unknown): boolean {
-  const text = String(input ?? '').toLowerCase()
-
-  return (
-    text.includes('content_bundle.js') ||
-    text.includes('onboarding.js') ||
-    text.includes('chrome-extension://') ||
-    text.includes('cannot read properties of undefined (reading \'getimagenode\')') ||
-    text.includes('"undefined" is not valid json')
-  )
-}
-
 export default function Home() {
-  const [model, setModel] = useState('Kar98k-normal')
-  const [widgetLoaded, setWidgetLoaded] = useState(false)
-  const [widgetError, setWidgetError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const onUnhandledRejection = (event: PromiseRejectionEvent) => {
-      const reason = event.reason
-      const reasonText =
-        reason instanceof Error
-          ? `${reason.message}\n${reason.stack ?? ''}`
-          : String(reason ?? '')
-
-      if (isKnownExternalRuntimeNoise(reasonText)) {
-        event.preventDefault()
-      }
+  const [model, setModel] = useState(() => {
+    if (typeof window === 'undefined') {
+      return 'Kar98k-normal'
     }
 
-    const onWindowError = (event: ErrorEvent) => {
-      const fullText = `${event.message}\n${event.filename ?? ''}\n${event.error?.stack ?? ''}`
-      if (isKnownExternalRuntimeNoise(fullText)) {
-        event.preventDefault()
-      }
-    }
+    return window.localStorage.getItem(MODEL_STORAGE_KEY) || 'Kar98k-normal'
+  })
 
-    window.addEventListener('unhandledrejection', onUnhandledRejection)
-    window.addEventListener('error', onWindowError)
-
-    return () => {
-      window.removeEventListener('unhandledrejection', onUnhandledRejection)
-      window.removeEventListener('error', onWindowError)
-    }
-  }, [])
+  const handleModelChange = (nextModel: string) => {
+    setModel(nextModel)
+    window.localStorage.setItem(MODEL_STORAGE_KEY, nextModel)
+    window.dispatchEvent(new CustomEvent(MODEL_CHANGE_EVENT, { detail: nextModel }))
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white p-8 pt-[80px] pb-[200px]">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white p-8 pt-[80px] pb-[340px]">
       <div className="max-w-5xl mx-auto space-y-14">
         <section className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
           <div>
@@ -174,7 +145,7 @@ export default function Home() {
               <label className="block text-sm text-gray-300 mb-2">Choose built-in model</label>
               <select
                 value={model}
-                onChange={(e) => setModel(e.target.value)}
+                onChange={(e) => handleModelChange(e.target.value)}
                 className="bg-gray-900 border border-gray-700 text-white text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 p-2.5 w-[220px]"
               >
                 {MODELS.map((name) => (
@@ -282,34 +253,6 @@ export default function Page() {
           </p>
         </section>
 
-        <section className="rounded-xl border border-gray-800 bg-gray-950/60 p-5 text-sm">
-          <h2 className="text-xl font-semibold mb-3">Widget runtime status</h2>
-          <p className="text-gray-300 mb-2">
-            Selected model: <span className="font-semibold text-white">{model}</span>
-          </p>
-          {!widgetLoaded && !widgetError && (
-            <p className="text-amber-300">Loading Live2D widget...</p>
-          )}
-          {widgetLoaded && !widgetError && (
-            <p className="text-emerald-300">Widget loaded successfully.</p>
-          )}
-          {widgetError && (
-            <p className="text-rose-300 break-all">{widgetError}</p>
-          )}
-        </section>
-
-        <Live2DWidget
-          modelName={model}
-          fallback={<div className="hidden" />}
-          onLoad={() => {
-            setWidgetError(null)
-            setWidgetLoaded(true)
-          }}
-          onError={(err) => {
-            setWidgetLoaded(false)
-            setWidgetError(err.message)
-          }}
-        />
       </div>
     </div>
   )

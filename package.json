@@ -1,6 +1,6 @@
 {
   "name": "next-live2d",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "A simple React component to embed Live2D models in Next.js projects with customizable options",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

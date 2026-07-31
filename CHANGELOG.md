@@ -4,6 +4,18 @@ All notable changes to this project are documented here.
 
 ---
 
+## [2.0.5] - 2026-07-31
+
+### 🐛 Fixed
+- Hardened DOM cleanup during widget lifecycle transitions to reduce `removeChild` race crashes.
+
+### 🧪 Test App
+- Reworked the demo runtime to isolate Live2D execution from App Router UI updates.
+- Restored demo interactions for model switch and mouse tracking in the isolated widget.
+- Increased isolated widget viewport sizing so taller models are less likely to be clipped.
+
+---
+
 ## [2.0.4] - 2026-07-27
 
 ### 🐛 Fixed

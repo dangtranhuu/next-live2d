@@ -188,11 +188,30 @@ function ensureLive2DScript(win: Live2DWindow): Promise<void> {
   return win.__next_live2d_script_loading__;
 }
 
-function safeRemoveWidgetNode(): void {
-  const root = document.querySelector('#live2d-widget');
-  if (root?.parentNode) {
-    root.parentNode.removeChild(root);
+function safeRemoveNode(node: Element | null): void {
+  if (!node) {
+    return;
   }
+
+  try {
+    node.remove();
+  } catch {
+    const parent = node.parentNode;
+    if (!parent) {
+      return;
+    }
+
+    try {
+      parent.removeChild(node);
+    } catch {
+      // Ignore DOM detach race during route transitions.
+    }
+  }
+}
+
+function safeCleanupWidgetDom(): void {
+  safeRemoveNode(document.querySelector('#live2d-widget'));
+  safeRemoveNode(document.querySelector('#live2dcanvas'));
 }
 
 function resetWidgetConfig(widgetApi: Live2DWidgetGlobal): void {
@@ -347,7 +366,7 @@ export default function Live2DWidget({
         }
 
         resetWidgetConfig(widgetApi);
-        safeRemoveWidgetNode();
+        safeCleanupWidgetDom();
         win.__next_live2d_initialized__ = false;
 
         const initResult = widgetApi.init({
@@ -395,7 +414,7 @@ export default function Live2DWidget({
         cancelAnimationFrame(frameId);
       }
 
-      safeRemoveWidgetNode();
+      safeCleanupWidgetDom();
 
       const winCleanup = window as Live2DWindow;
       winCleanup.__next_live2d_initialized__ = false;
@@ -404,12 +423,7 @@ export default function Live2DWidget({
 
   useEffect(() => {
     return () => {
-      safeRemoveWidgetNode();
-
-      const canvas = document.querySelector('#live2dcanvas');
-      if (canvas?.parentNode) {
-        canvas.parentNode.removeChild(canvas);
-      }
+      safeCleanupWidgetDom();
 
       const winCleanup = window as Live2DWindow;
       winCleanup.__next_live2d_initialized__ = false;
