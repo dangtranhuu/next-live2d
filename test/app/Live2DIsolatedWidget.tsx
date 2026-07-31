@@ -7,6 +7,7 @@ type Live2DIsolatedWidgetProps = {
   width?: number
   height?: number
   scale?: number
+  bottomOffset?: number
   position?: 'left' | 'right'
   baseUrl?: string
 }
@@ -28,9 +29,10 @@ function buildModelJsonPath(baseUrl: string, model: string): string {
 
 export default function Live2DIsolatedWidget({
   modelName = 'Kar98k-normal',
-  width = 190,
-  height = 540,
-  scale = 0.92,
+  width = 156,
+  height = 420,
+  scale = 0.82,
+  bottomOffset = -54,
   position = 'right',
   baseUrl = DEFAULT_BASE_URL,
 }: Live2DIsolatedWidgetProps) {
@@ -87,7 +89,7 @@ export default function Live2DIsolatedWidget({
     }
     #live2d-root {
       position: fixed;
-      bottom: 0;
+      bottom: ${bottomOffset}px;
       ${position}: 0;
       width: ${width}px;
       height: ${height}px;
@@ -165,7 +167,7 @@ export default function Live2DIsolatedWidget({
     run()
 
     const relayMouseMove = (event: MouseEvent) => {
-      const relayEvent = new win.MouseEvent('mousemove', {
+      const relayEvent = new MouseEvent('mousemove', {
         bubbles: true,
         cancelable: true,
         clientX: event.clientX,
@@ -182,7 +184,7 @@ export default function Live2DIsolatedWidget({
     return () => {
       window.removeEventListener('mousemove', relayMouseMove)
     }
-  }, [height, modelJsonPath, position, scale, width])
+  }, [bottomOffset, height, modelJsonPath, position, scale, width])
 
   return (
     <iframe
@@ -191,7 +193,7 @@ export default function Live2DIsolatedWidget({
       aria-hidden="true"
       style={{
         position: 'fixed',
-        bottom: 0,
+        bottom: bottomOffset,
         [position]: 0,
         width,
         height,

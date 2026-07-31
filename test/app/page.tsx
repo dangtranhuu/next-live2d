@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -251,6 +252,15 @@ export default function Page() {
             Full changelog and release notes are maintained in the library repository.
             Keep the demo page aligned with those notes to make package updates easier for users.
           </p>
+
+          <div className="mt-4">
+            <Link
+              href="/route-test"
+              className="inline-flex items-center rounded-md border border-gray-600 px-3 py-1.5 text-xs text-gray-200 transition hover:border-emerald-400 hover:text-emerald-200"
+            >
+              Open route test page
+            </Link>
+          </div>
         </section>
 
       </div>
