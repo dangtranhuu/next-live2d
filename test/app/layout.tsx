@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Live2DIsolatedWidget from "./Live2DIsolatedWidget";
+import Live2DWidgetHost from "./Live2DWidgetHost";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,7 +31,7 @@ export default function RootLayout({
       >
         <main>{children}</main>
 
-        <Live2DIsolatedWidget modelName="Kar98k-normal" />
+        <Live2DWidgetHost />
 
       </body>
     </html>

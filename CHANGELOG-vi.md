@@ -4,6 +4,17 @@ Toàn bộ các thay đổi quan trọng trong dự án sẽ được ghi chú t
 
 ---
 
+## [2.1.0] - 03/09/2026
+
+### ✨ Thêm mới
+- `Live2DWidget` giờ tự render trong iframe riêng biệt, người dùng không còn phải tự viết component cách ly nữa.
+- Thêm prop `scale` và `bottomOffset` để chỉnh kích thước/vị trí widget mà không cần CSS thêm.
+
+### 🐛 Sửa lỗi
+- Xóa bỏ lỗi `Cannot read properties of null (reading 'removeChild')` do không còn thao tác trực tiếp lên DOM của trang host; toàn bộ DOM của widget nằm trong document của iframe.
+
+---
+
 ## [2.0.5] - 31/07/2026
 
 ### 🐛 Sửa lỗi

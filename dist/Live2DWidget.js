@@ -13,9 +13,8 @@ const BUILT_IN_MODELS = [
 const DEFAULT_BASE_URL = 'https://raw.githubusercontent.com/2hjaito/next-live2d/refs/heads/main/models';
 const LIVE2D_SCRIPT_SRC = 'https://cdn.jsdelivr.net/npm/live2d-widget@3.1.4/lib/L2Dwidget.min.js';
 const LIVE2D_CHUNK_SCRIPT_SRC = 'https://cdn.jsdelivr.net/npm/live2d-widget@3.1.4/lib/L2Dwidget.0.min.js';
-const LIVE2D_SCRIPT_SELECTOR = 'script[data-next-live2d-script="true"]';
-const LIVE2D_CHUNK_SCRIPT_SELECTOR = 'script[data-next-live2d-chunk="true"]';
 const MODEL_JSON_TIMEOUT_MS = 10000;
+const WIDGET_READY_TIMEOUT_MS = 10000;
 function buildModelJsonPath(baseUrl, model) {
     const normalizedBaseUrl = baseUrl.replace(/\/+$/, '');
     const normalizedModel = model
@@ -61,126 +60,65 @@ async function validateModelJson(modelJsonPath) {
         window.clearTimeout(timeout);
     }
 }
-function ensureLive2DScript(win) {
-    if (win.L2Dwidget?.init) {
-        return Promise.resolve();
-    }
-    if (win.__next_live2d_script_loading__) {
-        return win.__next_live2d_script_loading__;
-    }
-    const existing = document.querySelector(LIVE2D_SCRIPT_SELECTOR);
-    const existingChunk = document.querySelector(LIVE2D_CHUNK_SCRIPT_SELECTOR);
-    if (existing && existingChunk && win.L2Dwidget?.init) {
-        return Promise.resolve();
-    }
-    const loadScript = (src, dataAttr, existingNode) => new Promise((resolve, reject) => {
-        const script = existingNode ?? document.createElement('script');
-        if (script.dataset.nextLive2dLoaded === 'true') {
-            resolve();
-            return;
-        }
+// Viết lại toàn bộ document bên trong iframe để widget chạy tách biệt,
+// tránh việc thao tác DOM va chạm với cây React của trang host (nguyên nhân gây lỗi removeChild).
+function writeFrameDocument(doc, opts) {
+    doc.open();
+    doc.write(`<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; overflow: visible; background: transparent; }
+  #live2d-root {
+    position: fixed;
+    bottom: ${opts.bottomOffset}px;
+    ${opts.position}: 0;
+    width: ${opts.width}px;
+    height: ${opts.height}px;
+    z-index: 9999;
+    pointer-events: none;
+    overflow: visible;
+  }
+</style>
+</head>
+<body>
+<div id="live2d-root"></div>
+</body>
+</html>`);
+    doc.close();
+}
+function loadFrameScript(doc, src) {
+    return new Promise((resolve, reject) => {
+        const script = doc.createElement('script');
         script.src = src;
         script.async = true;
-        script.dataset[dataAttr] = 'true';
-        const cleanup = () => {
-            script.removeEventListener('load', onLoad);
-            script.removeEventListener('error', onError);
-        };
-        const onLoad = () => {
-            script.dataset.nextLive2dLoaded = 'true';
-            cleanup();
-            resolve();
-        };
-        const onError = () => {
-            cleanup();
-            reject(new Error(`Failed to load script: ${src}`));
-        };
-        script.addEventListener('load', onLoad);
-        script.addEventListener('error', onError);
-        if (!existingNode) {
-            document.body.appendChild(script);
-        }
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+        doc.body.appendChild(script);
     });
-    win.__next_live2d_script_loading__ = new Promise((resolve, reject) => {
-        void loadScript(LIVE2D_SCRIPT_SRC, 'nextLive2dScript', existing)
-            .then(() => loadScript(LIVE2D_CHUNK_SCRIPT_SRC, 'nextLive2dChunk', existingChunk))
-            .then(() => {
-            if (!win.L2Dwidget?.init) {
-                throw new Error('Live2D widget API is unavailable after script load');
+}
+function waitForElement(win, doc, selector, timeoutMs) {
+    return new Promise((resolve, reject) => {
+        const startedAt = Date.now();
+        const tick = () => {
+            const el = doc.querySelector(selector);
+            if (el) {
+                resolve(el);
+                return;
             }
-            resolve();
-        })
-            .catch((err) => {
-            reject(err instanceof Error ? err : new Error(String(err)));
-        });
-    }).finally(() => {
-        win.__next_live2d_script_loading__ = undefined;
+            if (Date.now() - startedAt > timeoutMs) {
+                reject(new Error(`Timed out while waiting for Live2D widget container (${selector})`));
+                return;
+            }
+            win.requestAnimationFrame(tick);
+        };
+        win.requestAnimationFrame(tick);
     });
-    return win.__next_live2d_script_loading__;
 }
-function safeRemoveNode(node) {
-    if (!node) {
-        return;
-    }
-    try {
-        node.remove();
-    }
-    catch {
-        const parent = node.parentNode;
-        if (!parent) {
-            return;
-        }
-        try {
-            parent.removeChild(node);
-        }
-        catch {
-            // Ignore DOM detach race during route transitions.
-        }
-    }
-}
-function safeCleanupWidgetDom() {
-    safeRemoveNode(document.querySelector('#live2d-widget'));
-    safeRemoveNode(document.querySelector('#live2dcanvas'));
-}
-function resetWidgetConfig(widgetApi) {
-    const config = widgetApi.config;
-    if (!config || typeof config !== 'object') {
-        return;
-    }
-    for (const key of Object.keys(config)) {
-        delete config[key];
-    }
-}
-function applyWidgetDomProps(el, position, style, className, onClick) {
-    Object.assign(el.style, {
-        position: 'fixed',
-        [position]: '0px',
-        transition: 'bottom 0.3s ease-in-out',
-        zIndex: '9999',
-        pointerEvents: onClick ? 'auto' : 'none',
-        cursor: onClick ? 'pointer' : 'default',
-        ...style,
-    });
-    const previousClassName = el.dataset.nextLive2dClassName;
-    if (previousClassName) {
-        const oldClasses = previousClassName.split(/\s+/).filter(Boolean);
-        for (const cls of oldClasses) {
-            el.classList.remove(cls);
-        }
-    }
-    if (className) {
-        const classes = className.split(/\s+/).filter(Boolean);
-        for (const cls of classes) {
-            el.classList.add(cls);
-        }
-        el.dataset.nextLive2dClassName = className;
-    }
-    else {
-        delete el.dataset.nextLive2dClassName;
-    }
-    el.onclick = onClick ?? null;
-}
-export default function Live2DWidget({ modelName, baseUrl = DEFAULT_BASE_URL, style, className, position = 'right', width = 180, height = 300, opacity = 0.8, hoverOpacity = 0.2, showOnMobile = true, random = false, onLoad, onError, onClick, fallback, }) {
+export default function Live2DWidget({ modelName, baseUrl = DEFAULT_BASE_URL, style, className, position = 'right', width = 180, height = 300, scale = 1, bottomOffset = 0, opacity = 0.8, hoverOpacity = 0.2, showOnMobile = true, random = false, onLoad, onError, onClick, fallback, }) {
+    const iframeRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const randomModelRef = useRef(null);
@@ -205,9 +143,11 @@ export default function Live2DWidget({ modelName, baseUrl = DEFAULT_BASE_URL, st
     }, [random, modelName]);
     const modelJsonPath = buildModelJsonPath(baseUrl, selectedModel);
     useEffect(() => {
-        const win = window;
+        const iframe = iframeRef.current;
+        if (!iframe) {
+            return;
+        }
         let mounted = true;
-        let frameId = null;
         const finishWithError = (err) => {
             if (!mounted) {
                 return;
@@ -217,42 +157,26 @@ export default function Live2DWidget({ modelName, baseUrl = DEFAULT_BASE_URL, st
             setIsLoading(false);
             onErrorRef.current?.(normalizedError);
         };
-        const waitForWidget = () => {
-            const startedAt = Date.now();
-            const tick = () => {
-                if (!mounted) {
-                    return;
-                }
-                const el = document.querySelector('#live2d-widget');
-                if (el) {
-                    applyWidgetDomProps(el, position, style, className, onClickRef.current);
-                    setIsLoading(false);
-                    onLoadRef.current?.();
-                    return;
-                }
-                if (Date.now() - startedAt > 10000) {
-                    finishWithError(new Error('Timed out while waiting for Live2D widget container'));
-                    return;
-                }
-                frameId = requestAnimationFrame(tick);
-            };
-            frameId = requestAnimationFrame(tick);
-        };
         setIsLoading(true);
         setError(null);
-        void Promise.all([ensureLive2DScript(win), validateModelJson(modelJsonPath)])
+        const doc = iframe.contentDocument;
+        const win = iframe.contentWindow;
+        if (!doc || !win) {
+            finishWithError(new Error('Live2D widget iframe document is unavailable'));
+            return;
+        }
+        writeFrameDocument(doc, { position, width, height, bottomOffset });
+        void validateModelJson(modelJsonPath)
+            .then(() => loadFrameScript(doc, LIVE2D_SCRIPT_SRC))
+            .then(() => loadFrameScript(doc, LIVE2D_CHUNK_SCRIPT_SRC))
             .then(() => {
             if (!mounted) {
                 return;
             }
-            const widgetApi = win.L2Dwidget;
-            if (!widgetApi?.init) {
+            if (!win.L2Dwidget?.init) {
                 throw new Error('Live2D widget API is unavailable after script load');
             }
-            resetWidgetConfig(widgetApi);
-            safeCleanupWidgetDom();
-            win.__next_live2d_initialized__ = false;
-            const initResult = widgetApi.init({
+            const initResult = win.L2Dwidget.init({
                 model: {
                     jsonPath: modelJsonPath,
                 },
@@ -269,47 +193,66 @@ export default function Live2DWidget({ modelName, baseUrl = DEFAULT_BASE_URL, st
                     opacityOnHover: hoverOpacity,
                 },
             });
-            win.__next_live2d_initialized__ = true;
-            if (initResult && typeof initResult.then === 'function') {
-                return Promise.resolve(initResult)
-                    .then(() => {
-                    if (mounted) {
-                        waitForWidget();
-                    }
-                })
-                    .catch((err) => {
-                    finishWithError(err);
-                });
+            return Promise.resolve(initResult).then(() => undefined);
+        })
+            .then(() => waitForElement(win, doc, '#live2d-widget', WIDGET_READY_TIMEOUT_MS))
+            .then((widgetNode) => {
+            if (!mounted) {
+                return;
             }
-            waitForWidget();
+            const mountNode = doc.querySelector('#live2d-root');
+            if (mountNode && widgetNode.parentElement !== mountNode) {
+                mountNode.appendChild(widgetNode);
+            }
+            widgetNode.style.pointerEvents = 'auto';
+            widgetNode.style.transform = `scale(${scale})`;
+            widgetNode.style.transformOrigin = position === 'right' ? 'right bottom' : 'left bottom';
+            const widgetCanvas = doc.querySelector('#live2dcanvas');
+            if (widgetCanvas) {
+                widgetCanvas.style.pointerEvents = 'auto';
+            }
+            setIsLoading(false);
+            onLoadRef.current?.();
         })
             .catch((err) => {
             finishWithError(err);
         });
+        // Iframe bọc ngoài dùng pointer-events: none để không chặn thao tác trên trang host,
+        // nên phải chuyển tiếp sự kiện chuột của host vào bên trong iframe để widget vẫn theo dõi/tap được.
+        const relayEvent = (type) => (event) => {
+            const hitTarget = doc.elementFromPoint(event.clientX, event.clientY);
+            const target = hitTarget ?? doc;
+            const forwarded = new MouseEvent(type, {
+                bubbles: true,
+                cancelable: true,
+                clientX: event.clientX,
+                clientY: event.clientY,
+                screenX: event.screenX,
+                screenY: event.screenY,
+            });
+            target.dispatchEvent(forwarded);
+            if (type === 'click' && hitTarget instanceof Element && hitTarget.closest('#live2d-widget, #live2dcanvas')) {
+                onClickRef.current?.();
+            }
+        };
+        const relayMouseMove = relayEvent('mousemove');
+        const relayClick = relayEvent('click');
+        window.addEventListener('mousemove', relayMouseMove);
+        window.addEventListener('click', relayClick);
         return () => {
             mounted = false;
-            if (frameId !== null) {
-                cancelAnimationFrame(frameId);
+            window.removeEventListener('mousemove', relayMouseMove);
+            window.removeEventListener('click', relayClick);
+            try {
+                doc.open();
+                doc.write('');
+                doc.close();
             }
-            safeCleanupWidgetDom();
-            const winCleanup = window;
-            winCleanup.__next_live2d_initialized__ = false;
+            catch {
+                // Ignore cleanup races when the iframe has already been torn down by the browser.
+            }
         };
-    }, [modelJsonPath, position, width, height, opacity, hoverOpacity, showOnMobile]);
-    useEffect(() => {
-        return () => {
-            safeCleanupWidgetDom();
-            const winCleanup = window;
-            winCleanup.__next_live2d_initialized__ = false;
-        };
-    }, []);
-    useEffect(() => {
-        const el = document.querySelector('#live2d-widget');
-        if (!el) {
-            return;
-        }
-        applyWidgetDomProps(el, position, style, className, onClick);
-    }, [position, style, className, onClick]);
+    }, [modelJsonPath, position, width, height, scale, bottomOffset, opacity, hoverOpacity, showOnMobile]);
     // Hiển thị fallback khi đang load
     if (isLoading && fallback) {
         return _jsx(_Fragment, { children: fallback });
@@ -318,7 +261,18 @@ export default function Live2DWidget({ modelName, baseUrl = DEFAULT_BASE_URL, st
     if (error) {
         return null;
     }
-    return null;
+    return (_jsx("iframe", { ref: iframeRef, title: "Live2D Widget", "aria-hidden": "true", className: className, style: {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            border: 0,
+            background: 'transparent',
+            zIndex: 9999,
+            pointerEvents: 'none',
+            ...style,
+        } }));
 }
 // Export danh sách models và helper
 export { BUILT_IN_MODELS };

@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
@@ -102,13 +102,14 @@ const RELEASES = [
 ]
 
 export default function Home() {
-  const [model, setModel] = useState(() => {
-    if (typeof window === 'undefined') {
-      return 'Kar98k-normal'
-    }
+  const [model, setModel] = useState('Kar98k-normal')
 
-    return window.localStorage.getItem(MODEL_STORAGE_KEY) || 'Kar98k-normal'
-  })
+  useEffect(() => {
+    const stored = window.localStorage.getItem(MODEL_STORAGE_KEY)
+    if (stored) {
+      setModel(stored)
+    }
+  }, [])
 
   const handleModelChange = (nextModel: string) => {
     setModel(nextModel)
@@ -253,7 +254,19 @@ export default function Page() {
             Keep the demo page aligned with those notes to make package updates easier for users.
           </p>
 
-          <div className="mt-4">
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              href="/docs"
+              className="inline-flex items-center rounded-md border border-gray-600 px-3 py-1.5 text-xs text-gray-200 transition hover:border-emerald-400 hover:text-emerald-200"
+            >
+              Usage docs
+            </Link>
+            <Link
+              href="/changelog"
+              className="inline-flex items-center rounded-md border border-gray-600 px-3 py-1.5 text-xs text-gray-200 transition hover:border-emerald-400 hover:text-emerald-200"
+            >
+              Full changelog
+            </Link>
             <Link
               href="/route-test"
               className="inline-flex items-center rounded-md border border-gray-600 px-3 py-1.5 text-xs text-gray-200 transition hover:border-emerald-400 hover:text-emerald-200"

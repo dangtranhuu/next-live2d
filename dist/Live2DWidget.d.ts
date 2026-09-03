@@ -5,9 +5,9 @@ export type Live2DWidgetProps = {
     modelName?: ModelName;
     /** Custom base URL để load models (mặc định: GitHub raw) */
     baseUrl?: string;
-    /** CSS classes */
+    /** CSS classes áp dụng cho iframe bọc ngoài */
     className?: string;
-    /** Inline styles */
+    /** Inline styles áp dụng cho iframe bọc ngoài */
     style?: React.CSSProperties;
     /** Vị trí widget: 'left' | 'right' */
     position?: 'left' | 'right';
@@ -15,6 +15,10 @@ export type Live2DWidgetProps = {
     width?: number;
     /** Chiều cao widget (px) */
     height?: number;
+    /** Tỉ lệ scale widget, hữu ích khi model cao/rộng hơn khung hiển thị mặc định */
+    scale?: number;
+    /** Khoảng lệch tính từ đáy màn hình (px), có thể âm để đẩy widget xuống thấp hơn */
+    bottomOffset?: number;
     /** Độ trong suốt mặc định (0-1) */
     opacity?: number;
     /** Độ trong suốt khi hover (0-1) */
@@ -32,6 +36,6 @@ export type Live2DWidgetProps = {
     /** Component hiển thị khi đang load */
     fallback?: React.ReactNode;
 };
-export default function Live2DWidget({ modelName, baseUrl, style, className, position, width, height, opacity, hoverOpacity, showOnMobile, random, onLoad, onError, onClick, fallback, }: Live2DWidgetProps): import("react/jsx-runtime").JSX.Element;
+export default function Live2DWidget({ modelName, baseUrl, style, className, position, width, height, scale, bottomOffset, opacity, hoverOpacity, showOnMobile, random, onLoad, onError, onClick, fallback, }: Live2DWidgetProps): import("react/jsx-runtime").JSX.Element;
 export { BUILT_IN_MODELS };
 export declare const getRandomModel: () => ModelName;

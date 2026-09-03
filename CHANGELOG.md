@@ -4,6 +4,17 @@ All notable changes to this project are documented here.
 
 ---
 
+## [2.1.0] - 2026-09-03
+
+### ✨ Added
+- `Live2DWidget` now renders inside a self-contained iframe, so consumers no longer need to hand-roll their own isolated widget wrapper.
+- Added `scale` and `bottomOffset` props to control widget sizing/position without extra CSS.
+
+### 🐛 Fixed
+- Eliminated `Cannot read properties of null (reading 'removeChild')` crashes by no longer mutating the host document's DOM; all widget DOM lives inside the iframe document.
+
+---
+
 ## [2.0.5] - 2026-07-31
 
 ### 🐛 Fixed
