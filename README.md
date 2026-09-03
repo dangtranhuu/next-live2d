@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./public/logo.svg" alt="next-live2d logo" width="120" />
+</p>
+
 A simple React component to embed Live2D models (via `live2d-widget`) in Next.js projects.
 
 [![npm](https://img.shields.io/npm/v/next-live2d?style=flat-square)](https://www.npmjs.com/package/next-live2d)
